@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -194,7 +193,6 @@ const Expenses = () => {
     }
   };
 
-  // Filtragem de transações
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesCategory = filterCategory ? transaction.category === filterCategory : true;
     const matchesSearch = searchTerm
@@ -203,7 +201,6 @@ const Expenses = () => {
     return matchesCategory && matchesSearch;
   });
 
-  // Ordenar transações por data (mais recentes primeiro)
   const sortedTransactions = [...filteredTransactions].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
@@ -234,7 +231,7 @@ const Expenses = () => {
               <SelectValue placeholder="Filtrar por categoria" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas as categorias</SelectItem>
+              <SelectItem value="all">Todas as categorias</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   {cat}
@@ -320,7 +317,6 @@ const Expenses = () => {
         </div>
       )}
 
-      {/* Modal para adicionar/editar transação */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -398,7 +394,6 @@ const Expenses = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Diálogo de confirmação para excluir */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Transaction {
   id: string;
+  user_id: string;
   description: string;
   amount: number;
   category: string;
@@ -20,10 +21,15 @@ export async function getTransactions() {
   return data as Transaction[];
 }
 
-export async function addTransaction(transaction: Omit<Transaction, 'id' | 'created_at'>) {
+export async function addTransaction(transaction: Omit<Transaction, 'id' | 'created_at' | 'user_id'>) {
+  // Obter o usuário atual
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("Usuário não autenticado");
+  
   const { data, error } = await supabase
     .from('transactions')
-    .insert(transaction)
+    .insert({ ...transaction, user_id: user.id })
     .select()
     .single();
 
@@ -31,7 +37,7 @@ export async function addTransaction(transaction: Omit<Transaction, 'id' | 'crea
   return data as Transaction;
 }
 
-export async function updateTransaction(id: string, transaction: Partial<Omit<Transaction, 'id' | 'created_at'>>) {
+export async function updateTransaction(id: string, transaction: Partial<Omit<Transaction, 'id' | 'created_at' | 'user_id'>>) {
   const { data, error } = await supabase
     .from('transactions')
     .update(transaction)
@@ -56,8 +62,7 @@ export async function deleteTransaction(id: string) {
 export async function getExpensesByCategory() {
   // Retorna a soma dos gastos por categoria (apenas valores negativos são considerados despesas)
   const { data, error } = await supabase
-    .rpc('get_expenses_by_category')
-    .select();
+    .rpc('get_expenses_by_category');
   
   if (error) {
     // Fallback: fazer a agregação manualmente se não tiver a função RPC

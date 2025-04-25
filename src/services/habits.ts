@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface FinancialHabit {
   id: string;
+  user_id: string;
   name: string;
   target: string;
   current_streak: number;
@@ -21,10 +22,21 @@ export async function getHabits() {
   return data as FinancialHabit[];
 }
 
-export async function addHabit(habit: Omit<FinancialHabit, 'id' | 'created_at' | 'current_streak' | 'best_streak' | 'last_completed_at'>) {
+export async function addHabit(habit: Omit<FinancialHabit, 'id' | 'created_at' | 'current_streak' | 'best_streak' | 'last_completed_at' | 'user_id'>) {
+  // Obter o usuário atual
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("Usuário não autenticado");
+  
   const { data, error } = await supabase
     .from('financial_habits')
-    .insert(habit)
+    .insert({
+      ...habit,
+      user_id: user.id,
+      current_streak: 0,
+      best_streak: 0,
+      last_completed_at: null
+    })
     .select()
     .single();
 
@@ -32,7 +44,7 @@ export async function addHabit(habit: Omit<FinancialHabit, 'id' | 'created_at' |
   return data as FinancialHabit;
 }
 
-export async function updateHabit(id: string, habit: Partial<Omit<FinancialHabit, 'id' | 'created_at'>>) {
+export async function updateHabit(id: string, habit: Partial<Omit<FinancialHabit, 'id' | 'created_at' | 'user_id'>>) {
   const { data, error } = await supabase
     .from('financial_habits')
     .update(habit)

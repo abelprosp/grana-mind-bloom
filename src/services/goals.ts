@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface FinancialGoal {
   id: string;
+  user_id: string;
   title: string;
   target_amount: number;
   current_amount: number;
@@ -20,10 +21,15 @@ export async function getGoals() {
   return data as FinancialGoal[];
 }
 
-export async function addGoal(goal: Omit<FinancialGoal, 'id' | 'created_at'>) {
+export async function addGoal(goal: Omit<FinancialGoal, 'id' | 'created_at' | 'user_id'>) {
+  // Obter o usuário atual
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) throw new Error("Usuário não autenticado");
+  
   const { data, error } = await supabase
     .from('financial_goals')
-    .insert(goal)
+    .insert({ ...goal, user_id: user.id })
     .select()
     .single();
 
@@ -31,7 +37,7 @@ export async function addGoal(goal: Omit<FinancialGoal, 'id' | 'created_at'>) {
   return data as FinancialGoal;
 }
 
-export async function updateGoal(id: string, goal: Partial<Omit<FinancialGoal, 'id' | 'created_at'>>) {
+export async function updateGoal(id: string, goal: Partial<Omit<FinancialGoal, 'id' | 'created_at' | 'user_id'>>) {
   const { data, error } = await supabase
     .from('financial_goals')
     .update(goal)
