@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Wallet, Target, Trending, Heart } from 'lucide-react';
+import { Wallet, Target, TrendingUp, Heart } from 'lucide-react';
 
 const features = [
   {
@@ -14,7 +14,7 @@ const features = [
     description: 'Crie e alcance metas financeiras que fazem sentido para sua realidade e seus sonhos.'
   },
   {
-    icon: <Trending className="h-8 w-8 text-orange-600" />,
+    icon: <TrendingUp className="h-8 w-8 text-orange-600" />,
     title: 'Hábitos financeiros',
     description: 'Desenvolva rotinas de economia e investimento de forma divertida e sustentável.'
   },
