@@ -8,25 +8,58 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings as SettingsIcon } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Settings = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
-  const [currency, setCurrency] = React.useState('BRL');
-  const [notifications, setNotifications] = React.useState({
-    weeklyReport: true,
-    goalReminders: true,
-    unusualSpending: true,
-    dailyTips: false,
+  const [savedSettings, setSavedSettings] = React.useState({
+    currency: 'BRL',
+    theme: 'system',
+    notifications: {
+      weeklyReport: true,
+      goalReminders: true,
+      unusualSpending: true,
+      dailyTips: false,
+    }
   });
-  const [appearanceTheme, setAppearanceTheme] = React.useState('system');
+
+  const [currency, setCurrency] = React.useState(savedSettings.currency);
+  const [appearanceTheme, setAppearanceTheme] = React.useState(savedSettings.theme);
+  const [notifications, setNotifications] = React.useState(savedSettings.notifications);
 
   const handleSaveSettings = () => {
+    // Save to local storage
+    const newSettings = {
+      currency,
+      theme: appearanceTheme,
+      notifications
+    };
+    
+    localStorage.setItem('user-settings', JSON.stringify(newSettings));
+    setSavedSettings(newSettings);
+    
+    // Invalidate relevant queries to refresh data with new settings
+    queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    
     toast({
       title: 'Configurações salvas',
       description: 'Suas preferências foram atualizadas com sucesso.',
     });
   };
+
+  // Load settings from localStorage on mount
+  React.useEffect(() => {
+    const storedSettings = localStorage.getItem('user-settings');
+    if (storedSettings) {
+      const parsed = JSON.parse(storedSettings);
+      setCurrency(parsed.currency);
+      setAppearanceTheme(parsed.theme);
+      setNotifications(parsed.notifications);
+      setSavedSettings(parsed);
+    }
+  }, []);
 
   const handleToggleNotification = (key: keyof typeof notifications) => {
     setNotifications(prev => ({

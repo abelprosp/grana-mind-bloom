@@ -57,7 +57,7 @@ const Habits = () => {
         description: 'Seu hábito financeiro foi adicionado com sucesso.',
       });
       resetForm();
-      setDialogOpen(false);
+      setDialogOpen(false);  // Close the modal after successful creation
     },
     onError: (error) => {
       toast({
