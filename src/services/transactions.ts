@@ -67,7 +67,8 @@ export interface CategoryExpense {
 export async function getExpensesByCategory(): Promise<CategoryExpense[]> {
   // Tentativa de usar a função RPC
   try {
-    const { data, error } = await supabase.rpc('get_expenses_by_category');
+    // Fix: Explicitly typing the RPC return value
+    const { data, error } = await supabase.rpc<CategoryExpense[]>('get_expenses_by_category');
     
     if (error) throw error;
     return data as CategoryExpense[];
