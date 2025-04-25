@@ -17,26 +17,9 @@ const Footer: React.FC = () => {
             </p>
           </div>
           
-          <div>
-            <h4 className="font-semibold mb-4">Produto</h4>
-            <ul className="space-y-2">
-              <li><Link to="/#features" className="text-muted-foreground hover:text-foreground">Recursos</Link></li>
-              <li><Link to="/#how-it-works" className="text-muted-foreground hover:text-foreground">Como funciona</Link></li>
-              <li><Link to="/#testimonials" className="text-muted-foreground hover:text-foreground">Depoimentos</Link></li>
-              <li><Link to="#" className="text-muted-foreground hover:text-foreground">Preços</Link></li>
-            </ul>
-          </div>
           
-          <div>
-            <h4 className="font-semibold mb-4">Empresa</h4>
-            <ul className="space-y-2">
-              <li><Link to="#" className="text-muted-foreground hover:text-foreground">Sobre nós</Link></li>
-              <li><Link to="#" className="text-muted-foreground hover:text-foreground">Blog</Link></li>
-              <li><Link to="#" className="text-muted-foreground hover:text-foreground">Carreiras</Link></li>
-              <li><Link to="#" className="text-muted-foreground hover:text-foreground">Contato</Link></li>
-            </ul>
-          </div>
           
+         
           <div>
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-2">
