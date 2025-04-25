@@ -59,13 +59,22 @@ export async function deleteTransaction(id: string) {
   return true;
 }
 
-export async function getExpensesByCategory() {
-  // Retorna a soma dos gastos por categoria (apenas valores negativos são considerados despesas)
-  const { data, error } = await supabase
-    .rpc('get_expenses_by_category');
-  
-  if (error) {
-    // Fallback: fazer a agregação manualmente se não tiver a função RPC
+export interface CategoryExpense {
+  name: string;
+  value: number;
+}
+
+export async function getExpensesByCategory(): Promise<CategoryExpense[]> {
+  // Tentativa de usar a função RPC
+  try {
+    const { data, error } = await supabase.rpc('get_expenses_by_category');
+    
+    if (error) throw error;
+    return data as CategoryExpense[];
+  } catch (error) {
+    console.error("RPC função falhou, usando fallback:", error);
+    
+    // Fallback: fazer a agregação manualmente
     const { data: transactions, error: txError } = await supabase
       .from('transactions')
       .select('category, amount')
@@ -76,7 +85,7 @@ export async function getExpensesByCategory() {
     // Agregar manualmente
     const categories: Record<string, number> = {};
     transactions.forEach(tx => {
-      const absAmount = Math.abs(tx.amount);
+      const absAmount = Math.abs(Number(tx.amount));
       if (categories[tx.category]) {
         categories[tx.category] += absAmount;
       } else {
@@ -84,12 +93,13 @@ export async function getExpensesByCategory() {
       }
     });
     
+    // Calcular o total
+    const total = Object.values(categories).reduce((a, b) => a + b, 0);
+    
     // Converter para o formato esperado
     return Object.entries(categories).map(([name, value]) => ({
       name,
-      value: Number(((value / Object.values(categories).reduce((a, b) => a + b, 0)) * 100).toFixed(0))
+      value: Number(((value / total) * 100).toFixed(0))
     }));
   }
-  
-  return data;
 }
