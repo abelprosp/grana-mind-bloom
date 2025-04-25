@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Home, 
@@ -14,7 +14,6 @@ import {
   LogOut
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   DropdownMenu,
@@ -24,6 +23,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
+import { getUserProfile } from '@/services/profile';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -43,18 +45,38 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const location = useLocation();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signOut, user } = useAuth();
 
-  const handleLogout = () => {
-    // Implement logout logic
-    toast({
-      title: 'Logout realizado com sucesso',
-      description: 'Redirecionando para a página inicial...',
-    });
-    navigate('/');
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: getUserProfile,
+    enabled: !!user,
+  });
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: 'Logout realizado com sucesso',
+        description: 'Redirecionando para a página inicial...',
+      });
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      toast({
+        title: 'Erro ao fazer logout',
+        description: 'Ocorreu um erro inesperado.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const userName = "Maria Silva";
-  const userInitials = "MS";
+  const userName = profile?.first_name && profile?.last_name 
+    ? `${profile.first_name} ${profile.last_name}` 
+    : user?.email?.split('@')[0] || 'Usuário';
+  
+  const userInitials = profile?.first_name && profile?.last_name
+    ? `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase()
+    : userName.substring(0, 2).toUpperCase();
 
   return (
     <div className="flex h-screen bg-muted/20">

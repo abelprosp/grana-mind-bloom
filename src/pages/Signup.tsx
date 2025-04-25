@@ -1,12 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/components/ui/use-toast';
 import AuthLayout from '@/components/auth/AuthLayout';
+import { useAuth } from '@/hooks/useAuth';
 
 const goalOptions = [
   { value: 'emergency', label: 'Criar fundo de emergência' },
@@ -21,37 +21,25 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [goal, setGoal] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const { signUp, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Redirecionar se já estiver autenticado
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Demo signup validation
-      if (name && email && password) {
-        toast({
-          title: 'Conta criada com sucesso!',
-          description: 'Bem-vindo ao GranaMind!',
-        });
-        navigate('/dashboard');
-      } else {
-        throw new Error('Por favor, preencha todos os campos obrigatórios');
-      }
-    } catch (error) {
-      toast({
-        title: 'Erro ao criar conta',
-        description: error instanceof Error ? error.message : 'Ocorreu um erro inesperado.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    
+    // Separar nome e sobrenome
+    const nameParts = name.trim().split(' ');
+    const firstName = nameParts.shift() || '';
+    const lastName = nameParts.join(' ');
+    
+    await signUp(email, password, firstName, lastName);
   };
 
   return (

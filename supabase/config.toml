@@ -1,1 +1,5 @@
+
 project_id = "qisdggslbqachlwppkdx"
+
+[functions.get-expenses-by-category]
+verify_jwt = true
